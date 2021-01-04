@@ -1,0 +1,19 @@
+{
+  "name": "employee_tracker",
+  "version": "1.0.0",
+  "description": "This simple CMS application designed for a user to be able to view and interact with an employee tracking database.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adamhayward/Employee_Tracker.git"
+  },
+  "author": "Adam Hayward",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adamhayward/Employee_Tracker/issues"
+  },
+  "homepage": "https://github.com/adamhayward/Employee_Tracker#readme"
+}
