@@ -4,6 +4,7 @@
   "description": "This simple CMS application designed for a user to be able to view and interact with an employee tracking database.",
   "main": "index.js",
   "scripts": {
+    "start": "npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

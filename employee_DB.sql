@@ -15,7 +15,7 @@ CREATE TABLE role (
     id INT NOT NULL auto_increment,
     title - VARCHAR(30) -- to hold role title--,
     salary - DECIMAL -- to hold role salary--,
-    department_id - INT NULL--to hold reference to department role belongs to--,
+    department_id - INT --to hold reference to department role belongs to--,
     PRIMARY KEY (id)
 );
 -- Creates the table "employee" within employee_DB --
@@ -23,7 +23,15 @@ CREATE TABLE employee (
     id INT NOT NULL auto_increment,
     first_name - VARCHAR(30) -- to hold employee first name--,
     last_name - VARCHAR(30) --to hold employee last name--,
-    role_id - INT NULL -- to hold reference to role employee has--
+    role_id - INT -- to hold reference to role employee has--
     manager_id - INT NOT NULL --to hold reference to another employee that manages the employee being Created.--
     PRIMARY KEY (id)
 );
+INSERT INTO employee (firs_name, last_name, role_id, manager_id)
+VALUES ("Adam", "Hayward");
+INSERT INTO employee (firs_name, last_name, role_id, manager_id)
+VALUES ("Milton", "Freeman");
+INSERT INTO employee (firs_name, last_name, role_id, manager_id)
+VALUES ("Josh", "Ward");
+INSERT INTO employee (firs_name, last_name, role_id, manager_id)
+VALUES ("Scott", "Addkisson");
