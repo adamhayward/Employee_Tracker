@@ -1,37 +1,39 @@
--- Drops the employee_DB if it exists currently --
 DROP DATABASE IF EXISTS employee_DB;
--- Creates the "employee_DB" database --
 CREATE DATABASE employee_DB;
--- Makes it so all of the following code will affect employee_DB --
 USE employee_Db;
--- Creates the table "department" within employee_DB --
-CREATE TABLE department (
+
+CREATE TABLE departments (
     id INT NOT NULL auto_increment,
-    name VARCHAR(30) --to hold department name--,
+    department VARCHAR(30),
     PRIMARY KEY (id)
 );
--- Creates the table "role" within employee_DB --
+
 CREATE TABLE role (
     id INT NOT NULL auto_increment,
-    title - VARCHAR(30) -- to hold role title--,
-    salary - DECIMAL -- to hold role salary--,
-    department_id - INT --to hold reference to department role belongs to--,
+    title  VARCHAR(30),
+    salary DECIMAL,
+    departments_id INT,
     PRIMARY KEY (id)
 );
--- Creates the table "employee" within employee_DB --
+
+CREATE TABLE manager (
+id INT NOT NULL auto_increment,
+manager VARCHAR(30),
+PRIMARY KEY (id)
+);
+
 CREATE TABLE employee (
     id INT NOT NULL auto_increment,
-    first_name - VARCHAR(30) -- to hold employee first name--,
-    last_name - VARCHAR(30) --to hold employee last name--,
-    role_id - INT -- to hold reference to role employee has--
-    manager_id - INT NOT NULL --to hold reference to another employee that manages the employee being Created.--
+    `first name`  VARCHAR(30),
+    `last name`   VARCHAR(30),
+    role_id  INT,
+    manager_id  INT,
     PRIMARY KEY (id)
 );
-INSERT INTO employee (firs_name, last_name, role_id, manager_id)
-VALUES ("Adam", "Hayward");
-INSERT INTO employee (firs_name, last_name, role_id, manager_id)
-VALUES ("Milton", "Freeman");
-INSERT INTO employee (firs_name, last_name, role_id, manager_id)
-VALUES ("Josh", "Ward");
-INSERT INTO employee (firs_name, last_name, role_id, manager_id)
-VALUES ("Scott", "Addkisson");
+
+
+SELECT * FROM department;
+SELECT * FROM role;
+SELECT * FROM employee;
+
+
