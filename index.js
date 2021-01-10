@@ -5,7 +5,8 @@ const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
-  password: "Kk2ux8aa!",
+  // insert you personal password for mySQL below:
+  password: "",
   database: "employee_DB",
 });
 
@@ -52,9 +53,9 @@ const runPrompt = () => {
         case "Add role":
           addRole();
           break;
-        // case "Update employee's role":
-        //   updateRole();
-        //   break;
+        case "Update employee's role":
+          updateRole();
+          break;
         case "Exit":
           connection.end();
           break;
@@ -79,7 +80,7 @@ const queryDepartments = () => {
       name: "department",
       type: "rawlist",
       message: "Please select from the following departments:",
-      choices: ["Finance", "Marketing", "Opperations"],
+      choices: ["Logistics", "Support", "Opperations"],
     })
     .then((answer) => {
       let sql =
@@ -100,7 +101,7 @@ const queryRoles = () => {
       name: "title",
       type: "rawlist",
       message: "Please select from the following job titles:",
-      choices: ["Manager", "Technitian", "Engineer"],
+      choices: ["Manager", "Technitian", "Driver", "Teir 2 agent", "Customer Service Rep"],
     })
     .then((answer) => {
       let sql =
@@ -132,13 +133,19 @@ const addEmployee = () => {
         name: "title",
         type: "rawlist",
         message: "Please select a title for the employee:",
-        choices: ["Manager", "Technitian", "Engineer"],
+        choices: [
+          "Driver",
+          "Manager",
+          "Technitian",
+          "Tier 2 agent",
+          "Customer Service",
+        ],
       },
       {
         name: "department",
         type: "rawlist",
         message: "Please select a department for the employee:",
-        choices: ["Finance", "Marketing", "Opperations"],
+        choices: ["Logistics", "Support", "Opperations"],
       },
       {
         name: "salary",
@@ -160,36 +167,47 @@ const addEmployee = () => {
     ])
     .then((answer) => {
       connection.query(
-        "INSERT INTO employees SET ?",
+        "INSERT INTO managers SET ?",
         {
-          first_name: answer.firstName,
-          last_name: answer.lastName,
+          manager: answer.manager,
         },
-        (err, res) => {
+        (err, result) => {
           if (err) throw err;
+          let managerId = result.insertId;
           connection.query(
-            "INSERT INTO roles SET ?;",
+            "INSERT INTO departments SET ?;",
             {
-              Title: answer.title,
-              Salary: answer.salary,
+              department: answer.department,
             },
-            (err, res) => {
+            (err, result) => {
               if (err) throw err;
+              let departmentId = result.insertId;
               connection.query(
-                "INSERT INTO departments SET ?",
+                "INSERT INTO roles SET ?",
                 {
-                  Department: answer.department,
+                  Title: answer.title,
+                  Salary: answer.salary,
+                  departments_id: departmentId,
                 },
-                (err, res) => {
+                (err, result) => {
                   if (err) throw err;
+                  let roleId = result.insertId;
                   connection.query(
-                    "INSERT INTO managers SET ?",
+                    "INSERT INTO employees SET ?",
                     {
-                      Manager: answer.manager,
+                      first_name: answer.firstName,
+                      last_name: answer.lastName,
+                      role_id: roleId,
+                      manager_id: managerId,
                     },
                     (err, res) => {
                       if (err) throw err;
-                      console.table(res);
+                      connection.query(
+                        "SELECT employees.First_Name, employees.Last_Name, roles.Title, departments.Department, roles.Salary, managers.Manager FROM employees JOIN roles ON (employees.role_id = roles.id) JOIN departments ON (roles.departments_id = departments.id)JOIN managers ON (employees.manager_id = managers.id)",
+                        (err, result) => {
+                          console.table(result);
+                        }
+                      );
                     }
                   );
                   runPrompt();
@@ -240,7 +258,6 @@ const addRole = () => {
         name: "salary",
         type: "input",
         message: "Please input numerical value for the employee's salary:",
-        // logic to ensure user inputs salary data as a number
         validate: (value) => {
           if (!isNaN(value)) {
             return true;
@@ -255,24 +272,22 @@ const addRole = () => {
         { department: answer.department },
         (err, result) => {
           let i = result.insertId;
-          console.log(i)
+          console.log(i);
           connection.query(
             "INSERT INTO roles SET ?",
-            [
-              {
-                title: answer.title,
-                salary: answer.salary,
-                departments_id: i,
-              },
-            ],
+            {
+              title: answer.title,
+              salary: answer.salary,
+              departments_id: i,
+            },
             (err, res) => {
               if (err) throw err;
               connection.query(
                 "SELECT roles.Title, departments.Department, roles.Salary FROM roles JOIN departments ON (roles.departments_id = departments.id)",
-
                 (err, res) => {
                   if (err) throw err;
                   console.table(res);
+                  runPrompt();
                 }
               );
             }
@@ -280,4 +295,12 @@ const addRole = () => {
         }
       );
     });
+};
+
+const updateRole = () => {
+  inquirer.prompt({
+    name: "Employee",
+    type: "rawlist",
+    message: "Please select an employee:",
+  });
 };
