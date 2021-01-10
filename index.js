@@ -49,15 +49,15 @@ const runPrompt = () => {
         case "Add department":
           addDepartment();
           break;
-        // case "Add role":
-        //   addRole();
-        //   break;
+        case "Add role":
+          addRole();
+          break;
         // case "Update employee's role":
         //   updateRole();
         //   break;
-        // case "Exit":
-        // connection.end();
-        // break;
+        case "Exit":
+          connection.end();
+          break;
       }
     });
 };
@@ -85,7 +85,7 @@ const queryDepartments = () => {
       let sql =
         "SELECT employees.First_Name, employees.Last_Name, roles.Title, departments.Department, roles.Salary, managers.Manager FROM employees JOIN roles ON (employees.role_id = roles.id) JOIN departments ON (roles.departments_id = departments.id)JOIN managers ON (employees.manager_id = managers.id) WHERE (departments.department = ?)";
 
-      connection.query(sql, [answer.department], (err, res) => {
+      connection.query(sql, answer.department, (err, res) => {
         for (let i = 0; i < res.length; i++) {
           console.table([res[i]]);
         }
@@ -106,7 +106,7 @@ const queryRoles = () => {
       let sql =
         "SELECT employees.First_Name, employees.Last_Name, roles.Title, departments.Department, roles.Salary, managers.Manager FROM employees JOIN roles ON (employees.role_id = roles.id) JOIN departments ON (roles.departments_id = departments.id)JOIN managers ON (employees.manager_id = managers.id) WHERE (roles.title = ?)";
 
-      connection.query(sql, [answer.title], (err, res) => {
+      connection.query(sql, answer.title, (err, res) => {
         for (let i = 0; i < res.length; i++) {
           console.table([res[i]]);
         }
@@ -189,12 +189,10 @@ const addEmployee = () => {
                     },
                     (err, res) => {
                       if (err) throw err;
-                      console.log(
-                        `Employee:\n ${answer.firstName} ${answer.lastName}, was successfully added to the Employee data base.`
-                      );
-                      queryEmployees();
+                      console.table(res);
                     }
                   );
+                  runPrompt();
                 }
               );
             }
@@ -203,28 +201,6 @@ const addEmployee = () => {
       );
     });
 };
-//     .then((answer) => {
-//       connection.query(
-//         "INSERT INTO employees VALUES ? INNER JOIN roles ON (employees.role_id = roles.id) WHERE (roles.title = ?) INNER JOIN departments ON (roles.departments_id = departments.id) WHERE (departmetns.department = ?) INNER JOIN managers ON (employees.manger_id = mangers.id) WHERE (managers.manager = ?)",
-//       // connection.query(
-//       //   "INSERT INTO employees SET ? RIGHT JOIN roles ON (employees.role_id = roles.id) WHERE (roles.title = ?) INNER JOIN departments ON (roles.departments_id = departments.id) WHERE (departmetns.department = ?) INNER JOIN managers ON (employees.manger_id = mangers.id) WHERE (managers.manager = ?)",
-//         {
-//           First_Name: answer.firstName,
-//           Last_Name: answer.lastName,
-//           role_id: answer.title,
-//           manager_id: answer.manager,
-//         },
-//         (err, res) => {
-//           if (err) throw err;
-
-//           console.log(
-//             `Employee:\n ${answer.firstName} ${answer.lastName}, was successfully added to the Employee data base.`
-//           );
-//           queryEmployees();
-//         }
-//       );
-//     });
-// };
 
 const addDepartment = () => {
   inquirer
@@ -244,5 +220,64 @@ const addDepartment = () => {
         });
         runPrompt();
       });
+    });
+};
+
+const addRole = () => {
+  inquirer
+    .prompt([
+      {
+        name: "department",
+        type: "Input",
+        message: "Which Departmet does this role belong to?",
+      },
+      {
+        name: "title",
+        type: "Input",
+        message: "Please input the of the role:",
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "Please input numerical value for the employee's salary:",
+        // logic to ensure user inputs salary data as a number
+        validate: (value) => {
+          if (!isNaN(value)) {
+            return true;
+          }
+          return false;
+        },
+      },
+    ])
+    .then((answer) => {
+      connection.query(
+        "INSERT INTO departments SET ?",
+        { department: answer.department },
+        (err, result) => {
+          let i = result.insertId;
+          console.log(i)
+          connection.query(
+            "INSERT INTO roles SET ?",
+            [
+              {
+                title: answer.title,
+                salary: answer.salary,
+                departments_id: i,
+              },
+            ],
+            (err, res) => {
+              if (err) throw err;
+              connection.query(
+                "SELECT roles.Title, departments.Department, roles.Salary FROM roles JOIN departments ON (roles.departments_id = departments.id)",
+
+                (err, res) => {
+                  if (err) throw err;
+                  console.table(res);
+                }
+              );
+            }
+          );
+        }
+      );
     });
 };
