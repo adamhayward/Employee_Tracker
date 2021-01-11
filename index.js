@@ -6,7 +6,7 @@ const connection = mysql.createConnection({
   port: 3306,
   user: "root",
   // insert you personal password for mySQL below:
-  password: "",
+  password: "Kk2ux8aa!",
   database: "employee_DB",
 });
 
@@ -101,7 +101,13 @@ const queryRoles = () => {
       name: "title",
       type: "rawlist",
       message: "Please select from the following job titles:",
-      choices: ["Manager", "Technitian", "Driver", "Teir 2 agent", "Customer Service Rep"],
+      choices: [
+        "Manager",
+        "Technitian",
+        "Driver",
+        "Teir 2 agent",
+        "Customer Service Rep",
+      ],
     })
     .then((answer) => {
       let sql =
@@ -298,9 +304,42 @@ const addRole = () => {
 };
 
 const updateRole = () => {
-  inquirer.prompt({
-    name: "Employee",
-    type: "rawlist",
-    message: "Please select an employee:",
-  });
+  connection.query(
+    "SELECT employees.First_Name, employees.Last_Name, roles.Title FROM employees JOIN roles ON (employees.role_id = roles.id)",
+    (err, res) => {
+     
+      inquirer
+        .prompt(
+          {
+            name: "employee",
+            type: "rawlist",
+            message: "Please select an employee:",
+            choices: () => {
+              const employees = [];
+              const employeeData = JSON.stringify(res);
+             const employeeJSON = JSON.parse(employeeData);
+            
+        
+              for (let i = 0; i < employeeJSON.length; i++) {
+                let vals = Object.values(employeeJSON[i]);
+                const choices = vals.toString().replace(/,/g, " ");
+              
+                
+                employees.push(choices);
+                
+                // console.log(employees);
+              }
+              return employees;
+            },
+          }
+          // {
+          //   nane: "role",
+          //   type: ""
+          // }
+        )
+        .then((answer) => {
+          console.table(answer.employee);
+        });
+    }
+  );
 };
