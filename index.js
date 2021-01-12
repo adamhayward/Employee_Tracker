@@ -307,38 +307,101 @@ const updateRole = () => {
   connection.query(
     "SELECT employees.First_Name, employees.Last_Name, roles.Title FROM employees JOIN roles ON (employees.role_id = roles.id)",
     (err, res) => {
-     
       inquirer
-        .prompt(
+        .prompt([
           {
             name: "employee",
             type: "rawlist",
             message: "Please select an employee:",
             choices: () => {
               const employees = [];
+              //convers res data into sting
               const employeeData = JSON.stringify(res);
-             const employeeJSON = JSON.parse(employeeData);
-            
-        
+              //converts string data to proper JSON format
+              const employeeJSON = JSON.parse(employeeData);
+              //loops through JSON data to format data with out including keys
               for (let i = 0; i < employeeJSON.length; i++) {
                 let vals = Object.values(employeeJSON[i]);
+                //formats data in string with while replacing all "," with a space
                 const choices = vals.toString().replace(/,/g, " ");
-              
-                
+
                 employees.push(choices);
-                
-                // console.log(employees);
               }
               return employees;
             },
-          }
-          // {
-          //   nane: "role",
-          //   type: ""
-          // }
-        )
+          },
+          {
+            name: "title",
+            type: "rawlist",
+            message: "Please choose a title to to update:",
+            choices: () => {
+              const titles = [];
+              const employeeData = JSON.stringify(res);
+              //converts string data to proper JSON format
+              const employeeJSON = JSON.parse(employeeData);
+              //loops through JSON data to format data with out including keys
+              for (let i = 0; i < employeeJSON.length; i++) {
+                let vals = Object.entries(employeeJSON[i]);
+                titles.push(vals[2][1]);
+              }
+              return titles;
+            },
+          },
+        ])
         .then((answer) => {
-          console.table(answer.employee);
+          // constructs employee data as array split between each field
+          let employeeData = answer.employee.split(" ");
+          // removes all fields with exception of first_name
+          let firstName = employeeData.slice(0, 1);
+          // removes all fields with exception of last_name
+          let lastName = employeeData.slice(1, 2);
+
+          console.log(firstName + lastName);
+
+          connection.query(
+            "SELECT id FROM employees WHERE (first_name =? AND last_name =?)",
+            [`${firstName}`, `${lastName}`],
+            (err, res) => {
+              if (err) throw err;
+              let employeeId;
+              for (let i = 0; i < res.length; i++) {
+                const employeeRawId = JSON.stringify(res[i]);
+                const employeeJSON = JSON.parse(employeeRawId);
+                console.log(employeeRawId);
+                console.log(employeeJSON);
+                  let vals = Object.values(employeeRawId[6]);
+                employeeId = vals;
+                console.log(vals);
+                  
+                }
+                
+              // }
+              connection.query(
+                "SELECT id FROM roles WHERE id = ?",
+                [answer.title],
+                (err, res) => {
+                  if (err) throw err;
+                  let roleId;
+                  for (let i = 0; i < res.length; i++) {
+                    roleId = res[i].id;
+                    // let roleJson =JSON.parse(roleID)
+                    console.log(roleId);
+                  }
+
+                  connection.query(
+                    "UPDATE employees SET id =? WHERE role_id = ?",
+                    // [{first_name: employeeId}, {role_id: roleId}],
+                    [`${employeeId}`, [answer.title]],
+                    (err, res) => {
+                      if (err) throw err;
+                      console.table(res);
+                      runPrompt();
+                    }
+                  );
+                }
+              );
+            }
+          );
         });
     }
   );
